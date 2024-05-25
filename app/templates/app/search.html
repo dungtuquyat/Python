@@ -1,0 +1,42 @@
+{% extends "app/base.html" %}
+
+{%load static%}
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="">
+    </head>
+    <body>
+        {% block search %}
+    
+        <div class="row">
+            {%for product in keys%}
+            <div class="col-lg-4">
+                <image class="thumbnail" src="{{product.ImageURL}}">
+                <div class="box-element product">
+                  <h6><Strong>{{product.name}}</Strong></h6>
+                  <hr>
+                <button class="btn btn-outline-secondary add-btn update-cart" data-product="{{product.id}}" data-action="add">Thêm vào giỏ hàng</button>   
+                <a class="btn btn-outline-success" href="{%url 'detail'%}?id={{product.id}}">Xem</a>
+                  <h4 style="display: inline-block;float:right" ><Strong>{{product.price}}</Strong></h4>     
+        </div>
+        </div>
+        {% endfor%}
+        
+        
+        </div>
+
+{% endblock search %}
+        
+        <script src="" async defer></script>
+    </body>
+</html>

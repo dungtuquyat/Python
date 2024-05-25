@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .hidden {
+            display: none;
+        }
+        #popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: lightgreen;
+            padding: 20px;
+            border: 1px solid green;
+        }
+        .row-image {
+            max-width: 100px; /* Điều chỉnh kích thước tối đa của ảnh */
+            height: auto; /* Giữ tỷ lệ chiều rộng/chiều cao */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="box-element" id="form-wrapper">
+                    <form id="form">
+                        {% csrf_token %}
+                        <fieldset id="shipping-info">
+                            <legend>Shipping Information</legend>
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Address:</label>
+                                <input class="form-control" type="text" id="address" name="address" placeholder="Address..">
+                            </div>
+                            <div class="mb-3">
+                                <label for="city" class="form-label">City:</label>
+                                <input class="form-control" type="text" id="city" name="city" placeholder="City..">
+                            </div>
+                            <div class="mb-3">
+                                <label for="state" class="form-label">State:</label>
+                                <input class="form-control" type="text" id="state" name="state" placeholder="State..">
+                            </div>
+                            <div class="mb-3">
+                                <label for="mobile" class="form-label">Mobile:</label>
+                                <input class="form-control" type="text" id="mobile" name="mobile" placeholder="Mobile..">
+                            </div>
+                        </fieldset>
+                        <hr>
+                        <input id="form-button" class="btn btn-success btn-block" type="submit" value="Continue">
+                    </form>
+                </div>
+                <br>
+                <div class="box-element hidden" id="payment-info">
+                    <small>Paypal Options</small>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="box-element">
+					<a class="btn btn-outline-dark" href="{% url 'cart' %}">&#x2190; Back to Cart</a>
+					<hr>
+					<h3>Order Summary</h3>
+					<hr>
+					<div class="row">
+						<div class="col-md-2">
+							<h5>Image</h5>
+						</div>
+						<div class="col-md-4">
+							<h5>Product</h5>
+						</div>
+						<div class="col-md-2">
+							<h5>Price</h5>
+						</div>
+						<div class="col-md-2">
+							<h5>Quantity</h5>
+						</div>
+					</div>
+					{% for item in items %}
+					<div class="row">
+						<div class="col-md-2">
+							<img class="row-image" src="{{ item.product.ImageURL }}">
+						</div>
+						<div class="col-md-4">
+							<p>{{ item.product.name }}</p>
+						</div>
+						<div class="col-md-2">
+							<p>{{ item.product.price }}</p>
+						</div>
+						<div class="col-md-2">
+							<p>{{ item.quantity }}</p>
+						</div>
+					</div>
+					{% endfor %}
+					<hr>
+					<h5>Items: {{ order.get_cart_items }}</h5>
+					<h5>Total: ${{ order.get_cart_total }}</h5>
+				</div>
+				
+				
+				
+            </div>
+        </div>
+    </div>
+    <div id="popup" class="hidden">
+        <div id="popup-content">
+            <p>Order completed successfully!</p>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM fully loaded and parsed');
+            
+            var csrfTokenInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+            if (!csrfTokenInput) {
+                console.error('CSRF token not found!');
+                return;
+            }
+            var csrftoken = csrfTokenInput.value;
+            console.log('CSRF Token:', csrftoken);
+
+            var addressInput = document.getElementById('address');
+            if (!addressInput) {
+                console.error('Address input not found!');
+                return;
+            }
+
+            addressInput.addEventListener('input', function() {
+                var address = this.value;
+                console.log('Address input:', address);
+            });
+
+            var form = document.getElementById('form');
+            if (!form) {
+                console.error('Form not found!');
+                return;
+            }
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                console.log('Form submitted');
+
+                var shippingInfo = {
+                    address: document.getElementById('address').value,
+                    city: document.getElementById('city').value,
+                    state: document.getElementById('state').value,
+                    mobile: document.getElementById('mobile').value,
+                };
+
+                console.log('Shipping Info:', shippingInfo);
+
+                var url = '/complete_order/';
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken,
+                    },
+                    body: JSON.stringify(shippingInfo)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    alert('Đặt hàng thành công!');
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
